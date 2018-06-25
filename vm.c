@@ -916,14 +916,14 @@ void swappage(uint addr)
 // init shared memory
 void initshm(void)
 {
-  for (int i = 0; i < 1024; i++)
+  int i;
+  for (i = 0; i < MAX_SHMNODE_NUM; i++)
   {
     shmlist[i].sig = 0;
     shmlist[i].count = 0;
     shmlist[i].pagenum = 0;
     shmlist[i].addr = 0;
   }
-  cprintf("initshm complete\n");
 }
 
 // increase some sig counts in shmlist
@@ -942,7 +942,7 @@ int createshm(uint sig, uint bytes, int type)
     cprintf("%d bytes is too big, cannot get that big shared area, createshm failed!\n", bytes);
     return -1;
   }
-  if(type !=0 || type != 1)
+  if(type !=0 && type != 1)
   {
     cprintf("error shmtype: %d\n", type);
     return -1;

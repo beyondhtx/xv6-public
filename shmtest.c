@@ -36,12 +36,12 @@ The Socialist Soviet Republic of Abkhazia (nominated by Kaiser matias) was a sho
 
 int sig = 23333333;
 int sig2 = 1531534;
-int sig3 = 789456;
+int sig3 = 78945;
 int main()
 {
     printf(1, "================================\n");
     printf(1, "Memory sharing test started.\n");
-    if (createshm(sig, 16000, 0) >= 0 && createshm(sig2, 40, 0) >= 0 createshm(sig3, 50, 1) >= 0)
+    if (createshm(sig, 16000, 0) >= 0 && createshm(sig2, 40, 0) >= 0 && createshm(sig3, 50, 1) >= 0)
         printf(1, "[P] Share memory created.\n");
     else
     {
@@ -77,10 +77,11 @@ int main()
         printf(1, "[C] Full string received by child from parent in sig %d: \n", sig2);
         printf(1, "[C] %s", read2);
         printf(1, "\n");
+        printf(1, "[C] Forking grandchild...\n");
         if (fork() == 0) // This is child2
         {
             createshm(sig3, 0, 1);
-            printf(1, "[G] Writing message to parent parallely with child...");
+            printf(1, "[G] Writing message to parent parallely with child...\n");
             char *hellogp = "good morning grandpa! ";
             writeshm(sig3, hellogp, 22, 0);
             exit();
@@ -94,9 +95,10 @@ int main()
             char *inter = (char *)&number;
             writeshm(sig2, inter, 4, 20);
             char *hellop = "good morning father!";
-            writeshm(sig3, hellop, 21, 23);
+            writeshm(sig3, hellop, 21, 22);
             free(read);
             free(read2);
+            wait();
             exit();
         }
     }
@@ -121,7 +123,7 @@ int main()
         printf(1, "[P] Integer received by parent from child in sig %d: \n", sig2);
         urec = (int *)tmp;
         printf(1, "[P] %d\n", *urec);
-        printf(1, "[P] String parallely received by parent from child and grandchild in sig %d: \n", sig3);
+        printf(1, "[P] String received by parent from child and grandchild in sig %d: \n", sig3);
         printf(1, "[P] %s", parch);
         printf(1, "\n");
 
