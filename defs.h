@@ -218,7 +218,7 @@ void            clearpteu(pde_t *pgdir, char *uva);
 void            pagefault(uint err_code);
 void            swappage(uint);
 void            initshm(void);
-int             createshm(uint sig, uint bytes);
+int             createshm(uint sig, uint bytes, int type);
 int             deleteshm(uint sig);
 int             readshm(uint sig, char* rstr, uint num, uint offset);
 int             writeshm(uint sig, char* wstr, uint num, uint offset);

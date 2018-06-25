@@ -31,7 +31,7 @@ int closetaskmgr(void);
 int getprocinfo(int*, char(*)[16], int*, uint*);
 int updscrcont(char*, int);
 int nfpgs(void);
-int createshm(uint, uint);
+int createshm(uint, uint, int);
 int deleteshm(uint);
 int readshm(uint, char*, uint, uint);
 int writeshm(uint, char*, uint, uint);
