@@ -185,6 +185,7 @@ UPROGS=\
 	_sagtest\
 	_pgswptest\
 	_shmtest\
+	_vmstat\
 	_find\
 	_bi\
 	_vim\
@@ -277,7 +278,7 @@ EXTRA=\
 	mkfs.c ulib.c user.h cat.c echo.c forktest.c grep.c kill.c\
 	ln.c ls.c mkdir.c rm.c stressfs.c usertests.c wc.c zombie.c\
 	printf.c umalloc.c cowtest.c lalloctest.c npptest.c sagtest.c\
-	pgswptest.c shmtest.c\
+	pgswptest.c shmtest.c vmstat.c\
 	printf.c umalloc.c mv.c touch.c cp.c head.c tail.c splice.c\
 	history.c shutdown.c delete.c refresh.c showdeled.c\
 	README dot-bochsrc *.pl toc.* runoff runoff1 runoff.list\
