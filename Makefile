@@ -118,8 +118,10 @@ initcode: initcode.S
 	$(OBJCOPY) -S -O binary initcode.out initcode
 	$(OBJDUMP) -S initcode.o > initcode.asm
 
-kernel: $(OBJS) entry.o entryother initcode kernel.ld
-	$(LD) $(LDFLAGS) -T kernel.ld -o kernel entry.o $(OBJS) -b binary initcode entryother
+LUA = lua
+	
+kernel: $(OBJS) entry.o entryother initcode kernel.ld $(LUA)
+	$(LD) $(LDFLAGS) -T kernel.ld -o kernel entry.o $(OBJS) -b binary initcode entryother $(LUA)
 	$(OBJDUMP) -S kernel > kernel.asm
 	$(OBJDUMP) -t kernel | sed '1,/SYMBOL TABLE/d; s/ .* / /; /^$$/d' > kernel.sym
 
@@ -145,9 +147,26 @@ ULIB = ulib.o usys.o printf.o
 LIBC = libc/libc.a
 START = start.o
 
+NEWLIBDIR = xv6-newlib
+LUADIR = lua-xv6
+GCCDIR = barebones-toolchain-i686-elf
+NEWLIBFLAGS = --target=i686-elf-xv6 CC_FOR_TARGET=i686-elf-gcc AS_FOR_TARGET=i686-elf-as LD_FOR_TARGET=i686-elf-ld AR_FOR_TARGET=i686-elf-ar RANLIB_FOR_TARGET=i686-elf-ranlib
+NEWLIBCS = $(NEWLIBDIR)/i686-elf-xv6/newlib/libc.a $(NEWLIBDIR)/i686-elf-xv6/newlib/libm.a $(NEWLIBDIR)/i686-elf-xv6/newlib/libg.a \
+	$(NEWLIBDIR)/i686-elf-xv6/newlib/crt0.o $(NEWLIBDIR)/i686-elf-xv6/libgloss/libnosys/libnosys.a $(NEWLIBDIR)/newlib/libc/include
+
 $(LIBC):
 	$(MAKE) -C ./libc all
+	
+$(LUA): $(NEWLIBCS)
+	cd $(GCCDIR); . ./setenv.sh; cd ..; \
+	$(MAKE) -C $(LUADIR) all
+	cp $(LUADIR)/$(LUA) ./$(LUA)
 
+$(NEWLIBCS):
+	cd $(GCCDIR); . ./setenv.sh; cd ..; \
+	cd $(NEWLIBDIR); ./configure $(NEWLIBFLAGS); cd ..; \
+	$(MAKE) -C $(NEWLIBDIR) all
+	
 _%: %.o $(ULIB) $(START) $(LIBC)
 	$(LD) $(LDFLAGS) $(LDUSER) -s -N -o $@ $^
 	$(OBJDUMP) -S $@ > $*.asm
@@ -188,6 +207,7 @@ UPROGS=\
 	_vmstat\
 	_find\
 	_bi\
+	_rename\
 	_vim\
 	_mv\
 	_touch\
@@ -208,8 +228,10 @@ UPROGS=\
 	_timetest\
 	_stdtests\
 
-fs.img: mkfs README $(UPROGS)
-	./mkfs fs.img README $(UPROGS)
+LUA_SCRIPTS=testmath.lua testos.lua testio.lua testtable.lua
+
+fs.img: mkfs README $(UPROGS) $(LUA_SCRIPTS)
+	./mkfs fs.img README $(UPROGS) $(LUA_SCRIPTS)
 
 -include *.d
 
@@ -218,8 +240,11 @@ clean:
 	*.o *.d *.asm *.sym vectors.S bootblock entryother \
 	initcode initcode.out kernel xv6.img fs.img kernelmemfs mkfs \
 	.gdbinit \
-	$(UPROGS)
+	$(UPROGS) $(LUA)
 	$(MAKE) -C ./libc clean
+	$(MAKE) -C $(LUADIR) clean
+	rm -rf $(NEWLIBDIR)/i686-elf-xv6
+	$(MAKE) -C $(NEWLIBDIR) distclean
 
 # make a printout
 FILES = $(shell grep -v '^\#' runoff.list)
