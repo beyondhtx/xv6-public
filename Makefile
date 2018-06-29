@@ -207,6 +207,7 @@ UPROGS=\
 	_vmstat\
 	_find\
 	_bi\
+	_rename\
 	_vim\
 	_mv\
 	_touch\

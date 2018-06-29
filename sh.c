@@ -1,5 +1,5 @@
 // Shell.
-//sh.c文件的修改者：毛誉陶,江俊广
+//sh.c文件的修改者：毛誉陶,江俊广,赵哲晖
 #include "types.h"
 #include "user.h"
 #include "fcntl.h"
@@ -16,6 +16,13 @@
 #define BACK  5
 
 #define MAXARGS 10
+#define COMMANDNUM 45
+char *command[COMMANDNUM] = { "cat", "echo", "forktest", "grep", "init", "kill", "ln", "ls",
+"mkdir", "rm", "sh", "stressfs", "usertests", "wc", "zombie", "taskmgr", "cowtest", "lalloctest", 
+"npptest", "sagtest", "pgswptest", "shmtest", "vmstat", "find", "bi", "vim", "mv", "touch", "cp",
+"head", "tail", "splice", "history", "shutdown", "login", "more", "date", "pwd", "delete", "refresh", 
+"showdeled", "jerry", "timetest", "stdtests", "rename" };
+
 
 struct cmd {
   int type;
@@ -61,6 +68,7 @@ void addHistory(struct history* hs,char* cmd);
 void getHistory(struct history* hs);
 void setHistory(char* cmd);
 
+void findCommand(char * buf);
 
 int fork1(void);  // Fork but panics on failure.
 void panic(char*);
@@ -88,6 +96,14 @@ runcmd(struct cmd *cmd)
     ecmd = (struct execcmd*)cmd;
     if(ecmd->argv[0] == 0)
       exit();
+    int i;//转换为绝对路径
+    for(i = 0;ecmd->argv[0][i];i++);
+    char* ncommand = malloc((i+1)*sizeof(char));
+    ncommand[0] = '/';
+    for(i = 0;ecmd->argv[0][i];i++)
+    {
+        ncommand[i+1] = ecmd->argv[0][i];
+    }
     exec(ecmd->argv[0], ecmd->argv);
     printf(2, "exec %s failed\n", ecmd->argv[0]);
     break;
@@ -202,6 +218,15 @@ getcmd(char *buf, int nbuf)//从键盘读入命令到buf中，最长不能超过
       strcpy(buf, hs.record[hs.curcmd]);
       continue;
     }
+    if(c == 9)//tab
+    {
+      clearc();
+      buf[i] = '*';
+      findCommand(buf);
+      memset(buf, 0, nbuf);
+      i = 0;
+      continue;
+    }
     if(c == '\n' || c == '\r')
       break;
     buf[i++] = c;
@@ -261,6 +286,37 @@ executeShellFile(char* filename){
   }
   close(fd);
   return 0;
+}
+
+void findCommand(char * buf)  //自动补全
+{
+  printf(1,"\n");
+  int count = 0;
+  char * p = 0;
+  char * q = 0;
+  for(int i = 0; i < COMMANDNUM; i++)
+  {
+    p = buf;
+    q = command[i];
+    while((*p)!=0 && (*q)!=0)
+    {
+      if(*p == *q)
+      {
+        p++; q++;
+      }  
+      else
+        break;
+      if(*p == '*')
+      {
+        printf(2,"%s ", command[i]);
+        count++;
+        break;
+      }
+    }
+  }
+  if(!count)
+    printf(1,"No command found");
+  printf(1,"\n");
 }
 
 int
