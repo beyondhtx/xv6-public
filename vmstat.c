@@ -11,5 +11,6 @@ int main()
     printf(1, "Used shared memory:%dBytes\n",4096*n);
     printf(1, "Avalible shared memory:%dBytes\n",1024*(4096-n));
     showproc();
+    printf(1, "\n");
     exit();
 }
