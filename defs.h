@@ -222,6 +222,8 @@ int             createshm(uint sig, uint bytes, int type);
 int             deleteshm(uint sig);
 int             readshm(uint sig, char* rstr, uint num, uint offset);
 int             writeshm(uint sig, char* wstr, uint num, uint offset);
+int             getsharedpages(void);
+void            showproc(void);
 
 // number of elements in fixed-size array
 #define NELEM(x) (sizeof(x)/sizeof((x)[0]))
