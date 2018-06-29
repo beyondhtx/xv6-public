@@ -837,8 +837,8 @@ getprocinfo(int *pid, char (*name)[16], int *state, uint *sz)
 void
 showproc(void)
 {
-  cprintf("Process:\n");
-  cprintf("\nName\tState\tHeap Size\tStack Size\t\n");
+  cprintf("Process list:\n");
+  cprintf("Name\tHeap\tStack\t\n");
   struct proc* p;
   for(p=ptable.proc;p<&ptable.proc[NPROC];p++)
   {
